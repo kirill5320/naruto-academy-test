@@ -54,7 +54,7 @@
         }
         .question{
             background:rgba(255,255,255,.08);padding:30px;border-radius:20px;
-            margin-bottom:25px;border-left:6px solid #ffcc00;
+            margin-bottom:25px;border-left:6px солид #ffcc00;
             box-shadow:inset 0 2px 10px rgba(0,0,0,.2)
         }
         .question-text{font-size:1.4em;margin-bottom:25px;font-weight:700}
@@ -160,10 +160,7 @@ adminBtn.addEventListener('click',()=>{
 
 function showAdminButton(on){adminBtn.style.display=on?'inline-block':'none';}
 
-// показываем кнопку сразу при фокусе/вводе ника
-document.getElementById('studentName').addEventListener('input',()=>{
-    showAdminButton(true);
-});
+document.getElementById('studentName').addEventListener('input',()=>showAdminButton(true));
 
 async function alreadyPassed(name){
     const res=await fetch(`${API_URL}/search?name=${encodeURIComponent(name)}`);
@@ -174,7 +171,6 @@ async function alreadyPassed(name){
 async function startTest(){
     studentName=document.getElementById('studentName').value.trim();
     if(!studentName){alert('Введи ник.');return;}
-
     if(await alreadyPassed(studentName)){
         alert('Этот шиноби уже проходил экзамен и не может пройти его снова.');
         return;
@@ -182,7 +178,7 @@ async function startTest(){
     document.getElementById('nameScreen').classList.remove('active');
     document.getElementById('quizContainer').classList.add('active');
     document.getElementById('studentInfo').textContent='Шиноби: '+studentName;
-    showAdminButton(false); // скрыть на вопросах
+    showAdminButton(false);
     showQuestion();
     updateNav();
 }
@@ -227,12 +223,13 @@ function updateProgress(){
 }
 
 async function calculateScore(){
-    score=answers.filter((ans,i)=>ans===questions[i].correct).length;
+    score=answers.filter((ans,i)=>ans===questions[i].correct).length;  // ← здесь считаются баллы
     const errors=questions.length-score;
     const passed=errors<=7;
     const status=passed?'Прошёл':'Не прошёл';
     const dateStr=new Date().toLocaleString('ru-RU');
 
+    // здесь отправляется поле score в Google-таблицу
     await fetch(API_URL,{
         method:'POST',
         headers:{'Content-Type':'application/json'},
@@ -250,6 +247,7 @@ async function calculateScore(){
 function showResult(status,errors){
     document.getElementById('quizContainer').classList.remove('active');
     document.getElementById('resultScreen').classList.add('active');
+    // вывод баллов ?/15 на экране результата
     document.getElementById('score').innerHTML=
         `<h2>Баллы: ${score} из ${questions.length} — ошибок: ${errors}</h2>`;
     document.getElementById('rank').textContent=status;
@@ -258,7 +256,7 @@ function showResult(status,errors){
         status==='Прошёл'
             ?'<p>Поздравляем! Экзамен сдан.</p>'
             :'<p>Экзамен не сдан. Обратись к наставнику.</p>';
-    showAdminButton(true); // снова показать на экране результата
+    showAdminButton(true);
 }
 </script>
 </body>
