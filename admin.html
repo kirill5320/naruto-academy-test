@@ -61,7 +61,6 @@ async function loadResults(){
         const response=await fetch(API_URL);
         lastResults=await response.json();
 
-        // сортировка по статусу (сдавшие сверху), затем по score
         lastResults.sort((a,b)=>{
             const ap=a.status==='Прошёл'?1:0;
             const bp=b.status==='Прошёл'?1:0;
@@ -76,44 +75,10 @@ async function loadResults(){
             `<div class="stat">Всего: ${total}</div>
              <div class="stat">Сдали: ${passed}</div>`;
 
-        const tbodyHtml=lastResults.map((r,i)=>`
-            <tr ${i<3?'class="top3"':''}>
-                <td>${i+1}</td>
-                <td><strong>${r.name||'-'}</strong></td>
-                <td>${r.score!==undefined?r.score:'-'} / ${r.total||'-'}</td>
-                <td>${r.status||'-'}</td>
-                <td>${r.date||'-'}</td>
-                <td><button class="delete-btn" type="button" onclick="deleteRow(${i})">Удалить</button></td>
-            </tr>
-        `).join('');
-
-        document.querySelector('#resultsTable tbody').innerHTML=tbodyHtml||'<tr><td colspan="6">Нет данных</td></tr>';
+        renderFromLast();
     }catch(e){
         document.querySelector('#resultsTable tbody').innerHTML=
             '<tr><td colspan="6">Ошибка загрузки…</td></tr>';
-    }
-}
-
-async function deleteRow(index){
-    if(!confirm('Удалить этот результат?'))return;
-    const row=lastResults[index];
-    if(!row){return;}
-
-    const name=row.name||'';
-    const date=row.date||'';
-
-    try{
-        // сначала удаляем в Google-таблице
-        await fetch(`${API_URL}/search`,{
-            method:'DELETE',
-            headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({name:name,date:date})
-        });
-        // затем обновляем локальный массив и таблицу
-        lastResults.splice(index,1);
-        renderFromLast();
-    }catch(e){
-        alert('Не удалось удалить запись.');
     }
 }
 
@@ -122,13 +87,34 @@ function renderFromLast(){
         <tr ${i<3?'class="top3"':''}>
             <td>${i+1}</td>
             <td><strong>${r.name||'-'}</strong></td>
-            <td>${r.score!==undefined?r.score:'-'} / ${r.total||'-'}</td>
+            <td>${r.score!==undefined?r.score:'-'} / 15</td>
             <td>${r.status||'-'}</td>
             <td>${r.date||'-'}</td>
             <td><button class="delete-btn" type="button" onclick="deleteRow(${i})">Удалить</button></td>
         </tr>
     `).join('');
     document.querySelector('#resultsTable tbody').innerHTML=tbodyHtml||'<tr><td colspan="6">Нет данных</td></tr>';
+}
+
+async function deleteRow(index){
+    if(!confirm('Удалить этот результат?'))return;
+    const row=lastResults[index];
+    if(!row)return;
+
+    const name=row.name||'';
+    const date=row.date||'';
+
+    try{
+        await fetch(API_URL+'/search',{
+            method:'DELETE',
+            headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({name:name,date:date})
+        });
+        lastResults.splice(index,1);
+        renderFromLast();
+    }catch(e){
+        alert('Не удалось удалить запись.');
+    }
 }
 
 async function deleteAll(){
