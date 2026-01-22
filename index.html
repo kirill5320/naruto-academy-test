@@ -160,6 +160,11 @@ adminBtn.addEventListener('click',()=>{
 
 function showAdminButton(on){adminBtn.style.display=on?'inline-block':'none';}
 
+// показываем кнопку сразу при фокусе/вводе ника
+document.getElementById('studentName').addEventListener('input',()=>{
+    showAdminButton(true);
+});
+
 async function alreadyPassed(name){
     const res=await fetch(`${API_URL}/search?name=${encodeURIComponent(name)}`);
     const data=await res.json();
@@ -169,7 +174,7 @@ async function alreadyPassed(name){
 async function startTest(){
     studentName=document.getElementById('studentName').value.trim();
     if(!studentName){alert('Введи ник.');return;}
-    showAdminButton(true); // видно только на экране ввода
+
     if(await alreadyPassed(studentName)){
         alert('Этот шиноби уже проходил экзамен и не может пройти его снова.');
         return;
@@ -177,7 +182,7 @@ async function startTest(){
     document.getElementById('nameScreen').classList.remove('active');
     document.getElementById('quizContainer').classList.add('active');
     document.getElementById('studentInfo').textContent='Шиноби: '+studentName;
-    showAdminButton(false); // спрятать на вопросах
+    showAdminButton(false); // скрыть на вопросах
     showQuestion();
     updateNav();
 }
@@ -223,7 +228,6 @@ function updateProgress(){
 
 async function calculateScore(){
     score=answers.filter((ans,i)=>ans===questions[i].correct).length;
-    const percent=Math.round(score/questions.length*100);
     const errors=questions.length-score;
     const passed=errors<=7;
     const status=passed?'Прошёл':'Не прошёл';
@@ -235,8 +239,6 @@ async function calculateScore(){
         body:JSON.stringify([{
             name:studentName,
             score:score,
-            total:questions.length,
-            percent:percent,
             date:dateStr,
             status:status
         }])
