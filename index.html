@@ -27,7 +27,6 @@
             box-shadow: 0 25px 50px rgba(0,0,0,0.4);
             border: 3px solid rgba(255,204,0,0.3);
         }
-        /* кнопка админки */
         .admin-btn {
             position: absolute;
             top: 15px;
@@ -146,8 +145,6 @@
         }
         .genin { background: linear-gradient(45deg, #00cc00, #66ff66); color: #1a3c1a; }
         .chunin { background: linear-gradient(45deg, #0066cc, #66ccff); color: #003366; }
-        .jonin { background: linear-gradient(45deg, #cc6600, #ff9966); color: #1a1a1a; }
-        .anbu { background: linear-gradient(45deg, #9900cc, #cc66ff); color: white; }
         @media (max-width: 768px) { .nav-buttons { flex-direction: column; } }
     </style>
 </head>
@@ -193,7 +190,6 @@
                 <div id="score"></div>
                 <div id="rank" class="rank"></div>
                 <div id="feedback"></div>
-                <button class="btn start-btn" onclick="restartQuiz()">🔄 Пройти заново</button>
             </div>
         </div>
     </div>
@@ -201,17 +197,17 @@
     <script>
         const API_URL = 'https://sheetdb.io/api/v1/4ssoqxhf0fnia';
 
-        // 15 заготовок вопросов – просто меняешь текст и правильный индекс
+        // 15 заготовок вопросов – просто меняешь текст и индекс correct
         const questions = [
-            {question: "Вопрос 1", options: ["Ответ 1", "Ответ 2", "Ответ 3", "Ответ 4"], correct: 0},
-            {question: "Вопрос 2", options: ["Ответ 1", "Ответ 2", "Ответ 3", "Ответ 4"], correct: 0},
-            {question: "Вопрос 3", options: ["Ответ 1", "Ответ 2", "Ответ 3", "Ответ 4"], correct: 0},
-            {question: "Вопрос 4", options: ["Ответ 1", "Ответ 2", "Ответ 3", "Ответ 4"], correct: 0},
-            {question: "Вопрос 5", options: ["Ответ 1", "Ответ 2", "Ответ 3", "Ответ 4"], correct: 0},
-            {question: "Вопрос 6", options: ["Ответ 1", "Ответ 2", "Ответ 3", "Ответ 4"], correct: 0},
-            {question: "Вопрос 7", options: ["Ответ 1", "Ответ 2", "Ответ 3", "Ответ 4"], correct: 0},
-            {question: "Вопрос 8", options: ["Ответ 1", "Ответ 2", "Ответ 3", "Ответ 4"], correct: 0},
-            {question: "Вопрос 9", options: ["Ответ 1", "Ответ 2", "Ответ 3", "Ответ 4"], correct: 0},
+            {question: "Вопрос 1",  options: ["Ответ 1", "Ответ 2", "Ответ 3", "Ответ 4"], correct: 0},
+            {question: "Вопрос 2",  options: ["Ответ 1", "Ответ 2", "Ответ 3", "Ответ 4"], correct: 0},
+            {question: "Вопрос 3",  options: ["Ответ 1", "Ответ 2", "Ответ 3", "Ответ 4"], correct: 0},
+            {question: "Вопрос 4",  options: ["Ответ 1", "Ответ 2", "Ответ 3", "Ответ 4"], correct: 0},
+            {question: "Вопрос 5",  options: ["Ответ 1", "Ответ 2", "Ответ 3", "Ответ 4"], correct: 0},
+            {question: "Вопрос 6",  options: ["Ответ 1", "Ответ 2", "Ответ 3", "Ответ 4"], correct: 0},
+            {question: "Вопрос 7",  options: ["Ответ 1", "Ответ 2", "Ответ 3", "Ответ 4"], correct: 0},
+            {question: "Вопрос 8",  options: ["Ответ 1", "Ответ 2", "Ответ 3", "Ответ 4"], correct: 0},
+            {question: "Вопрос 9",  options: ["Ответ 1", "Ответ 2", "Ответ 3", "Ответ 4"], correct: 0},
             {question: "Вопрос 10", options: ["Ответ 1", "Ответ 2", "Ответ 3", "Ответ 4"], correct: 0},
             {question: "Вопрос 11", options: ["Ответ 1", "Ответ 2", "Ответ 3", "Ответ 4"], correct: 0},
             {question: "Вопрос 12", options: ["Ответ 1", "Ответ 2", "Ответ 3", "Ответ 4"], correct: 0},
@@ -231,9 +227,21 @@
             }
         }
 
-        function startTest() {
+        async function alreadyPassed(name) {
+            const res = await fetch(`${API_URL}/search?name=${encodeURIComponent(name)}`);
+            const data = await res.json();
+            return data.length > 0;
+        }
+
+        async function startTest() {
             studentName = document.getElementById('studentName').value.trim();
             if (!studentName) return alert('⚠️ Введи ник!');
+
+            if (await alreadyPassed(studentName)) {
+                alert('Этот шиноби уже проходил экзамен и не может пройти его снова.');
+                return;
+            }
+
             document.getElementById('nameScreen').classList.remove('active');
             document.getElementById('quizContainer').classList.add('active');
             document.getElementById('studentInfo').textContent = `Шиноби: ${studentName}`;
@@ -290,9 +298,11 @@
         async function calculateScore() {
             score = answers.filter((ans,i) => ans === questions[i].correct).length;
             const percent = Math.round(score / questions.length * 100);
-            const rank = percent >= 90 ? '🗡️ АНБУ' :
-                         percent >= 75 ? '⚔️ Джонин' :
-                         percent >= 60 ? '🛡️ Чунин' : '🍃 Генин';
+            const errors = questions.length - score;
+            const passed = errors <= 7; // 7 и больше ошибок — не прошёл
+
+            const status = passed ? 'Прошёл' : 'Не прошёл';
+            const dateStr = new Date().toLocaleString('ru-RU');
 
             await fetch(API_URL, {
                 method: 'POST',
@@ -302,39 +312,27 @@
                     score: score,
                     total: questions.length,
                     percent: percent,
-                    date: new Date().toLocaleString('ru-RU'),
-                    rank: rank
+                    date: dateStr,
+                    status: status
                 }])
             });
 
-            showResult(percent, rank);
+            showResult(percent, status, errors);
         }
 
-        function showResult(percent, rank) {
+        function showResult(percent, status, errors) {
             document.getElementById('quizContainer').classList.remove('active');
             document.getElementById('resultScreen').classList.add('active');
 
             document.getElementById('score').innerHTML =
-                `<h2>${score}/${questions.length} (${percent}%)</h2>`;
-            document.getElementById('rank').textContent = rank;
-            document.getElementById('rank').className = `rank ${
-                rank.includes('АНБУ') ? 'anbu' :
-                rank.includes('Джонин') ? 'jonin' :
-                rank.includes('Чунин') ? 'chunin' : 'genin'
-            }`;
-            document.getElementById('feedback').innerHTML =
-                percent >= 90 ? '<p>🎉 Превосходно! Элитный уровень!</p>' :
-                percent >= 75 ? '<p>👍 Отлично! Готов к миссиям!</p>' :
-                percent >= 60 ? '<p>👌 Хорошо! Повтори материал!</p>' :
-                                '<p>📚 Вернись к учебникам академии!</p>';
-        }
+                `<h2>${score}/${questions.length} (${percent}%) — ошибок: ${errors}</h2>`;
+            document.getElementById('rank').textContent = status;
+            document.getElementById('rank').className = 'rank ' + (status === 'Прошёл' ? 'chunin' : 'genin');
 
-        function restartQuiz() {
-            currentQuestion = 0; answers = []; score = 0;
-            document.getElementById('resultScreen').classList.remove('active');
-            document.getElementById('nameScreen').classList.add('active');
-            document.getElementById('studentName').value = '';
-            document.getElementById('progressBar').style.width = '0%';
+            document.getElementById('feedback').innerHTML =
+                status === 'Прошёл'
+                ? '<p>🎉 Поздравляем! Ты успешно сдал экзамен.</p>'
+                : '<p>📚 Экзамен не сдан. Обратись к наставнику для повторной подготовки.</p>';
         }
     </script>
 </body>
