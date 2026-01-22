@@ -126,6 +126,7 @@
 <script>
 const API_URL='https://sheetdb.io/api/v1/4ssoqxhf0fnia';
 
+// 15 заготовок, заполни своими вопросами и правильными ответами
 const questions=[
     {question:"Вопрос 1",options:["Ответ 1","Ответ 2","Ответ 3","Ответ 4"],correct:0},
     {question:"Вопрос 2",options:["Ответ 1","Ответ 2","Ответ 3","Ответ 4"],correct:0},
@@ -222,19 +223,21 @@ function updateProgress(){
 }
 
 async function calculateScore(){
+    // здесь считается итоговый балл
     score=answers.filter((ans,i)=>ans===questions[i].correct).length;
     const errors=questions.length-score;
     const passed=errors<=7;
     const status=passed?'Прошёл':'Не прошёл';
     const dateStr=new Date().toLocaleString('ru-RU');
 
+    // здесь поле score уходит в Google-таблицу
     await fetch(API_URL,{
         method:'POST',
         headers:{'Content-Type':'application/json'},
         body:JSON.stringify([{
             name:studentName,
-            score:score,     // ← поле score уходит в таблицу
-            date:dateStr,    // ← строка дата/время
+            score:score,
+            date:dateStr,
             status:status
         }])
     });
