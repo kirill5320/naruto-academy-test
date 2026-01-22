@@ -20,11 +20,10 @@
         }
         tr:hover{background:rgba(255,255,255,.2)}
         .top3{background:linear-gradient(45deg,gold,orange)!important;font-weight:700}
-        .refresh{
-            padding:15px 30px;background:#00cc00;color:#fff;border:none;
-            border-radius:20px;cursor:pointer;font-size:1.1em;margin-bottom:20px;margin-right:10px
+        .danger{
+            padding:15px 30px;background:#cc0000;color:#fff;border:none;
+            border-radius:20px;cursor:pointer;font-size:1.1em;margin-bottom:20px
         }
-        .danger{background:#cc0000}
         .stats{display:flex;gap:20px;margin-bottom:20px;flex-wrap:wrap}
         .stat{
             background:rgba(255,255,255,.2);padding:20px;border-radius:15px;text-align:center
@@ -34,12 +33,21 @@
             background:#cc0000;color:#fff;font-size:.8em
         }
     </style>
+    <script>
+        // простой пароль на вход (не защищает от просмотра кода)
+        (function(){
+            var ok = prompt('Введите пароль администратора:');
+            if(ok !== 'yugen_kairen'){
+                document.write('Доступ запрещён');
+                throw new Error('Access denied');
+            }
+        })();
+    </script>
 </head>
 <body>
 <div class="container">
     <h1>Админ-панель Академии</h1>
-    <button class="refresh" type="button" onclick="loadResults()">Обновить результаты</button>
-    <button class="refresh danger" type="button" onclick="deleteAll()">Очистить всё</button>
+    <button class="danger" type="button" onclick="deleteAll()">Очистить всё</button>
 
     <div class="stats" id="stats"></div>
     <table id="resultsTable">
@@ -87,7 +95,7 @@ function renderFromLast(){
         <tr ${i<3?'class="top3"':''}>
             <td>${i+1}</td>
             <td><strong>${r.name||'-'}</strong></td>
-            <td>${r.score!==undefined?r.score:'-'} / 15</td>
+            <td>${r.score!==undefined?r.score:'0'} / 15</td>
             <td>${r.status||'-'}</td>
             <td>${r.date||'-'}</td>
             <td><button class="delete-btn" type="button" onclick="deleteRow(${i})">Удалить</button></td>
