@@ -13,15 +13,10 @@
             justify-content:center;align-items:center;padding:20px
         }
         .container{
-            position:relative;background:rgba(255,255,255,.15);
+            background:rgba(255,255,255,.15);
             backdrop-filter:blur(15px);border-radius:25px;padding:40px;
             max-width:900px;width:100%;box-shadow:0 25px 50px rgba(0,0,0,.4);
             border:3px solid rgba(255,204,0,.3)
-        }
-        .admin-btn{
-            position:absolute;top:15px;right:15px;padding:8px 18px;
-            border-radius:20px;border:none;cursor:pointer;font-size:.9em;
-            font-weight:700;background:#0066cc;color:#fff;display:none
         }
         .screen{display:none}
         .screen.active{display:block}
@@ -54,7 +49,7 @@
         }
         .question{
             background:rgba(255,255,255,.08);padding:30px;border-radius:20px;
-            margin-bottom:25px;border-left:6px солид #ffcc00;
+            margin-bottom:25px;border-left:6px solid #ffcc00;
             box-shadow:inset 0 2px 10px rgba(0,0,0,.2)
         }
         .question-text{font-size:1.4em;margin-bottom:25px;font-weight:700}
@@ -78,7 +73,7 @@
         .btn:disabled{opacity:.5;cursor:not-allowed}
         .result{text-align:center}
         .rank{
-            font-size:2.5em;margin:30px 0;padding:30px;border-radius:20px;
+            font-size:2.2em;margin:30px 0;padding:25px;border-radius:20px;
             font-weight:700;box-shadow:0 10px 30px rgba(0,0,0,.3)
         }
         .genin{background:linear-gradient(45deg,#00cc00,#66ff66);color:#1a3c1a}
@@ -88,7 +83,6 @@
 </head>
 <body>
 <div class="container">
-    <button id="adminBtn" class="admin-btn" type="button">Админ-панель</button>
 
     <div id="nameScreen" class="screen active">
         <div class="header">
@@ -150,17 +144,10 @@ const questions=[
     {question:"Вопрос 15",options:["Ответ 1","Ответ 2","Ответ 3","Ответ 4"],correct:0}
 ];
 
-let currentQuestion=0,answers=[],score=0,studentName='';
-
-const adminBtn=document.getElementById('adminBtn');
-adminBtn.addEventListener('click',()=>{
-    const pass=prompt('Введите пароль администратора:');
-    if(pass==='yugen_kairen')window.open('admin.html','_blank');else if(pass!==null)alert('Неверный пароль.');
-});
-
-function showAdminButton(on){adminBtn.style.display=on?'inline-block':'none';}
-
-document.getElementById('studentName').addEventListener('input',()=>showAdminButton(true));
+let currentQuestion=0;
+let answers=[];
+let score=0;
+let studentName='';
 
 async function alreadyPassed(name){
     const res=await fetch(`${API_URL}/search?name=${encodeURIComponent(name)}`);
@@ -171,14 +158,15 @@ async function alreadyPassed(name){
 async function startTest(){
     studentName=document.getElementById('studentName').value.trim();
     if(!studentName){alert('Введи ник.');return;}
+
     if(await alreadyPassed(studentName)){
         alert('Этот шиноби уже проходил экзамен и не может пройти его снова.');
         return;
     }
+
     document.getElementById('nameScreen').classList.remove('active');
     document.getElementById('quizContainer').classList.add('active');
     document.getElementById('studentInfo').textContent='Шиноби: '+studentName;
-    showAdminButton(false);
     showQuestion();
     updateNav();
 }
@@ -204,39 +192,49 @@ function selectOption(index){
 
 function nextQuestion(){
     if(answers[currentQuestion]===undefined){alert('Выбери ответ.');return;}
-    if(currentQuestion<questions.length-1){currentQuestion++;showQuestion();updateNav();}
-    else calculateScore();
+    if(currentQuestion<questions.length-1){
+        currentQuestion++;
+        showQuestion();
+        updateNav();
+    }else{
+        calculateScore();
+    }
 }
 
 function prevQuestion(){
-    if(currentQuestion>0){currentQuestion--;showQuestion();updateNav();}
+    if(currentQuestion>0){
+        currentQuestion--;
+        showQuestion();
+        updateNav();
+    }
 }
 
 function updateNav(){
     document.getElementById('prevBtn').disabled=currentQuestion===0;
-    document.getElementById('nextBtn').textContent=currentQuestion===questions.length-1?'Завершить →':'Далее →';
+    document.getElementById('nextBtn').textContent=
+        currentQuestion===questions.length-1?'Завершить →':'Далее →';
     updateProgress();
 }
 
 function updateProgress(){
-    document.getElementById('progressBar').style.width=((currentQuestion+1)/questions.length*100)+'%';
+    document.getElementById('progressBar').style.width=
+        ((currentQuestion+1)/questions.length*100)+'%';
 }
 
 async function calculateScore(){
-    score=answers.filter((ans,i)=>ans===questions[i].correct).length;  // ← здесь считаются баллы
+    score=answers.filter((ans,i)=>ans===questions[i].correct).length;
     const errors=questions.length-score;
     const passed=errors<=7;
     const status=passed?'Прошёл':'Не прошёл';
     const dateStr=new Date().toLocaleString('ru-RU');
 
-    // здесь отправляется поле score в Google-таблицу
     await fetch(API_URL,{
         method:'POST',
         headers:{'Content-Type':'application/json'},
         body:JSON.stringify([{
             name:studentName,
-            score:score,
-            date:dateStr,
+            score:score,     // ← поле score уходит в таблицу
+            date:dateStr,    // ← строка дата/время
             status:status
         }])
     });
@@ -247,16 +245,15 @@ async function calculateScore(){
 function showResult(status,errors){
     document.getElementById('quizContainer').classList.remove('active');
     document.getElementById('resultScreen').classList.add('active');
-    // вывод баллов ?/15 на экране результата
+
     document.getElementById('score').innerHTML=
         `<h2>Баллы: ${score} из ${questions.length} — ошибок: ${errors}</h2>`;
     document.getElementById('rank').textContent=status;
     document.getElementById('rank').className='rank '+(status==='Прошёл'?'chunin':'genin');
     document.getElementById('feedback').innerHTML=
         status==='Прошёл'
-            ?'<p>Поздравляем! Экзамен сдан.</p>'
-            :'<p>Экзамен не сдан. Обратись к наставнику.</p>';
-    showAdminButton(true);
+        ?'<p>Поздравляем! Экзамен сдан.</p>'
+        :'<p>Экзамен не сдан. Обратись к наставнику.</p>';
 }
 </script>
 </body>
