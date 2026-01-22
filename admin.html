@@ -2,142 +2,148 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>📈 Админ-панель Академии Конохи</title>
+    <title>Админ-панель академии</title>
     <style>
-        body { font-family: Arial; background: #1a3c1a; color: white; padding: 30px; }
-        .container {
-            max-width: 1200px; margin: 0 auto;
-            background: rgba(255,255,255,0.1);
-            border-radius: 20px; padding: 30px;
-            backdrop-filter: blur(10px);
+        body{font-family:Arial,sans-serif;background:#1a3c1a;color:#fff;padding:30px}
+        .container{
+            max-width:1200px;margin:0 auto;background:rgba(255,255,255,.1);
+            border-radius:20px;padding:30px;backdrop-filter:blur(10px)
         }
-        table {
-            width: 100%; border-collapse: collapse; margin-top: 20px;
-            background: rgba(255,255,255,0.15); border-radius: 15px; overflow: hidden;
+        table{
+            width:100%;border-collapse:collapse;margin-top:20px;
+            background:rgba(255,255,255,.15);border-radius:15px;overflow:hidden
         }
-        th, td { padding: 15px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.2); }
-        th {
-            background: linear-gradient(45deg, #ff6600, #ffcc00);
-            color: #1a1a1a; font-weight: bold;
+        th,td{padding:15px;text-align:left;border-bottom:1px solid rgba(255,255,255,.2)}
+        th{
+            background:linear-gradient(45deg,#ff6600,#ffcc00);
+            color:#1a1a1a;font-weight:700
         }
-        tr:hover { background: rgba(255,255,255,0.2); }
-        .top3 { background: linear-gradient(45deg, gold, orange) !important; font-weight: bold; }
-        .refresh {
-            padding: 15px 30px; background: #00cc00; color: white;
-            border: none; border-radius: 20px; cursor: pointer;
-            font-size: 1.1em; margin-bottom: 20px; margin-right: 10px;
+        tr:hover{background:rgba(255,255,255,.2)}
+        .top3{background:linear-gradient(45deg,gold,orange)!important;font-weight:700}
+        .refresh{
+            padding:15px 30px;background:#00cc00;color:#fff;border:none;
+            border-radius:20px;cursor:pointer;font-size:1.1em;margin-bottom:20px;margin-right:10px
         }
-        .danger { background: #cc0000; }
-        .stats { display: flex; gap: 20px; margin-bottom: 20px; flex-wrap: wrap; }
-        .stat {
-            background: rgba(255,255,255,0.2);
-            padding: 20px; border-radius: 15px; text-align: center;
+        .danger{background:#cc0000}
+        .stats{display:flex;gap:20px;margin-bottom:20px;flex-wrap:wrap}
+        .stat{
+            background:rgba(255,255,255,.2);padding:20px;border-radius:15px;text-align:center
         }
-        .delete-btn {
-            padding: 5px 10px;
-            border-radius: 12px;
-            border: none;
-            cursor: pointer;
-            background: #cc0000;
-            color: #fff;
-            font-size: 0.8em;
+        .delete-btn{
+            padding:5px 10px;border-radius:12px;border:none;cursor:pointer;
+            background:#cc0000;color:#fff;font-size:.8em
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>🍃 Админ-панель Академии Синоби 🍃</h1>
-        <button class="refresh" onclick="loadResults()">🔄 Обновить результаты</button>
-        <button class="refresh danger" onclick="deleteAll()">🧹 Очистить всё</button>
+<div class="container">
+    <h1>Админ-панель Академии</h1>
+    <button class="refresh" type="button" onclick="loadResults()">Обновить результаты</button>
+    <button class="refresh danger" type="button" onclick="deleteAll()">Очистить всё</button>
 
-        <div class="stats" id="stats"></div>
-        <table id="resultsTable">
-            <thead>
-                <tr>
-                    <th>Место</th><th>Ник</th><th>Балл</th><th>%</th><th>Статус</th><th>Дата</th><th>Действие</th>
-                </tr>
-            </thead>
-        </table>
-    </div>
+    <div class="stats" id="stats"></div>
+    <table id="resultsTable">
+        <thead>
+        <tr>
+            <th>Место</th><th>Ник</th><th>Балл</th><th>Статус</th><th>Дата</th><th>Действие</th>
+        </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
 
-    <script>
-        const API_URL = 'https://sheetdb.io/api/v1/4ssoqxhf0fnia';
+<script>
+const API_URL='https://sheetdb.io/api/v1/4ssoqxhf0fnia';
+let lastResults=[];
 
-        async function loadResults() {
-            try {
-                const response = await fetch(API_URL);
-                let results = await response.json();
+async function loadResults(){
+    try{
+        const response=await fetch(API_URL);
+        lastResults=await response.json();
 
-                results.sort((a,b) => parseInt(b.percent || 0) - parseInt(a.percent || 0));
+        // сортировка по статусу (сдавшие сверху), затем по score
+        lastResults.sort((a,b)=>{
+            const ap=a.status==='Прошёл'?1:0;
+            const bp=b.status==='Прошёл'?1:0;
+            if(bp-ap!==0)return bp-ap;
+            return (parseInt(b.score||0)-parseInt(a.score||0));
+        });
 
-                const total = results.length;
-                const passed = results.filter(r => (r.status === 'Прошёл')).length;
-                const best = results[0] ? (results[0].percent || 0) : 0;
+        const total=lastResults.length;
+        const passed=lastResults.filter(r=>r.status==='Прошёл').length;
 
-                document.getElementById('stats').innerHTML = `
-                    <div class="stat">👥 Всего: ${total}</div>
-                    <div class="stat">✅ Сдали: ${passed}</div>
-                    <div class="stat">🥇 Лучший: ${best}%</div>
-                `;
+        document.getElementById('stats').innerHTML=
+            `<div class="stat">Всего: ${total}</div>
+             <div class="stat">Сдали: ${passed}</div>`;
 
-                const tbody = results.map((r,i) => `
-                    <tr ${i < 3 ? 'class="top3"' : ''}>
-                        <td>${i+1}🏆</td>
-                        <td><strong>${r.name || '-'}</strong></td>
-                        <td>${r.score !== undefined ? r.score : '-'} / ${r.total || '-'}</td>
-                        <td><strong>${r.percent || 0}%</strong></td>
-                        <td>${r.status || '-'}</td>
-                        <td>${r.date || '-'}</td>
-                        <td><button class="delete-btn" onclick="deleteRow(${i})">Удалить</button></td>
-                    </tr>
-                `).join('');
+        const tbodyHtml=lastResults.map((r,i)=>`
+            <tr ${i<3?'class="top3"':''}>
+                <td>${i+1}</td>
+                <td><strong>${r.name||'-'}</strong></td>
+                <td>${r.score!==undefined?r.score:'-'} / ${r.total||'-'}</td>
+                <td>${r.status||'-'}</td>
+                <td>${r.date||'-'}</td>
+                <td><button class="delete-btn" type="button" onclick="deleteRow(${i})">Удалить</button></td>
+            </tr>
+        `).join('');
 
-                document.getElementById('resultsTable').innerHTML = `
-                    <thead>
-                        <tr>
-                            <th>Место</th><th>Ник</th><th>Балл</th><th>%</th><th>Статус</th><th>Дата</th><th>Действие</th>
-                        </tr>
-                    </thead>
-                    <tbody>${tbody}</tbody>
-                `;
-            } catch(e) {
-                document.getElementById('resultsTable').innerHTML =
-                    '<tr><td colspan="7">Ошибка загрузки…</td></tr>';
-            }
-        }
+        document.querySelector('#resultsTable tbody').innerHTML=tbodyHtml||'<tr><td colspan="6">Нет данных</td></tr>';
+    }catch(e){
+        document.querySelector('#resultsTable tbody').innerHTML=
+            '<tr><td colspan="6">Ошибка загрузки…</td></tr>';
+    }
+}
 
-        async function deleteRow(index) {
-            if (!confirm('Удалить этот результат?')) return;
-            try {
-                const response = await fetch(API_URL);
-                let results = await response.json();
-                if (!results[index]) return;
+async function deleteRow(index){
+    if(!confirm('Удалить этот результат?'))return;
+    const row=lastResults[index];
+    if(!row){return;}
 
-                const name = results[index].name;
-                const date = results[index].date;
+    const name=row.name||'';
+    const date=row.date||'';
 
-                await fetch(`${API_URL}/name/${encodeURIComponent(name)}/date/${encodeURIComponent(date)}`, {
-                    method: 'DELETE'
-                });
+    try{
+        // сначала удаляем в Google-таблице
+        await fetch(`${API_URL}/search`,{
+            method:'DELETE',
+            headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({name:name,date:date})
+        });
+        // затем обновляем локальный массив и таблицу
+        lastResults.splice(index,1);
+        renderFromLast();
+    }catch(e){
+        alert('Не удалось удалить запись.');
+    }
+}
 
-                loadResults();
-            } catch(e) {
-                alert('Не удалось удалить запись.');
-            }
-        }
+function renderFromLast(){
+    const tbodyHtml=lastResults.map((r,i)=>`
+        <tr ${i<3?'class="top3"':''}>
+            <td>${i+1}</td>
+            <td><strong>${r.name||'-'}</strong></td>
+            <td>${r.score!==undefined?r.score:'-'} / ${r.total||'-'}</td>
+            <td>${r.status||'-'}</td>
+            <td>${r.date||'-'}</td>
+            <td><button class="delete-btn" type="button" onclick="deleteRow(${i})">Удалить</button></td>
+        </tr>
+    `).join('');
+    document.querySelector('#resultsTable tbody').innerHTML=tbodyHtml||'<tr><td colspan="6">Нет данных</td></tr>';
+}
 
-        async function deleteAll() {
-            if (!confirm('Точно очистить ВСЕ результаты?')) return;
-            try {
-                await fetch(API_URL + '/all', { method: 'DELETE' });
-                loadResults();
-            } catch(e) {
-                alert('Не удалось очистить таблицу.');
-            }
-        }
+async function deleteAll(){
+    if(!confirm('Точно очистить ВСЕ результаты?'))return;
+    try{
+        await fetch(API_URL+'/all',{method:'DELETE'});
+        lastResults=[];
+        renderFromLast();
+    }catch(e){
+        alert('Не удалось очистить таблицу.');
+    }
+}
 
-        loadResults();
-        setInterval(loadResults, 10000);
-    </script>
+loadResults();
+setInterval(loadResults,10000);
+</script>
 </body>
 </html>
