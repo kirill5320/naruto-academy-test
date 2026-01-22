@@ -17,6 +17,7 @@
             padding: 20px;
         }
         .container {
+            position: relative;
             background: rgba(255,255,255,0.15);
             backdrop-filter: blur(15px);
             border-radius: 25px;
@@ -26,11 +27,25 @@
             box-shadow: 0 25px 50px rgba(0,0,0,0.4);
             border: 3px solid rgba(255,204,0,0.3);
         }
+        /* кнопка админки */
+        .admin-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            padding: 8px 18px;
+            border-radius: 20px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: bold;
+            background: #0066cc;
+            color: #fff;
+        }
         .screen { display: none; }
         .screen.active { display: block; }
         .header { text-align: center; margin-bottom: 30px; }
-        .logo { 
-            font-size: 3em; 
+        .logo {
+            font-size: 3em;
             background: linear-gradient(45deg, #ffcc00, #ff6600);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -49,34 +64,34 @@
             margin-bottom: 25px;
         }
         .name-input input::placeholder { color: rgba(255,255,255,0.6); }
-        .btn { 
-            padding: 18px 40px; 
-            border: none; 
-            border-radius: 30px; 
-            font-size: 1.2em; 
-            font-weight: bold; 
-            cursor: pointer; 
-            transition: all 0.3s; 
-            width: 100%; 
+        .btn {
+            padding: 18px 40px;
+            border: none;
+            border-radius: 30px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
             margin-bottom: 15px;
         }
-        .start-btn { 
+        .start-btn {
             background: linear-gradient(45deg, #ff6600, #ffcc00);
-            color: white; 
+            color: white;
         }
         .start-btn:hover { transform: scale(1.05); box-shadow: 0 10px 25px rgba(255,102,0,0.4); }
-        .progress { 
-            background: rgba(255,255,255,0.2); 
-            height: 10px; 
-            border-radius: 5px; 
-            margin: 25px 0; 
+        .progress {
+            background: rgba(255,255,255,0.2);
+            height: 10px;
+            border-radius: 5px;
+            margin: 25px 0;
             overflow: hidden;
         }
-        .progress-bar { 
-            height: 100%; 
+        .progress-bar {
+            height: 100%;
             background: linear-gradient(90deg, #ffcc00, #ff6600, #00cc00);
-            width: 0%; 
-            transition: width 0.4s ease; 
+            width: 0%;
+            transition: width 0.4s ease;
         }
         .question {
             background: rgba(255,255,255,0.08);
@@ -86,10 +101,10 @@
             border-left: 6px solid #ffcc00;
             box-shadow: inset 0 2px 10px rgba(0,0,0,0.2);
         }
-        .question-text { 
-            font-size: 1.4em; 
-            margin-bottom: 25px; 
-            font-weight: bold; 
+        .question-text {
+            font-size: 1.4em;
+            margin-bottom: 25px;
+            font-weight: bold;
         }
         .options { display: flex; flex-direction: column; gap: 15px; }
         .option {
@@ -101,12 +116,12 @@
             border: 2px solid transparent;
             font-size: 1.1em;
         }
-        .option:hover { 
-            background: rgba(255,255,255,0.25); 
-            transform: translateX(8px); 
+        .option:hover {
+            background: rgba(255,255,255,0.25);
+            transform: translateX(8px);
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
-        .option.selected { 
+        .option.selected {
             background: linear-gradient(45deg, #ffcc00, #ff6600) !important;
             color: #1a1a1a !important;
             border-color: #fff !important;
@@ -138,6 +153,8 @@
 </head>
 <body>
     <div class="container">
+        <button class="admin-btn" onclick="openAdmin()">Админ-панель</button>
+
         <!-- ЭКРАН ВВОДА НИКА -->
         <div id="nameScreen" class="screen active">
             <div class="header">
@@ -177,36 +194,51 @@
                 <div id="rank" class="rank"></div>
                 <div id="feedback"></div>
                 <button class="btn start-btn" onclick="restartQuiz()">🔄 Пройти заново</button>
-                <button class="btn" onclick="window.open('admin.html', '_blank')" style="background: #0066cc;">📊 Посмотреть ТОП</button>
             </div>
         </div>
     </div>
 
     <script>
         const API_URL = 'https://sheetdb.io/api/v1/4ssoqxhf0fnia';
+
+        // 15 заготовок вопросов – просто меняешь текст и правильный индекс
         const questions = [
-            {question: "Какое высшее наказание за предательство?", options: ["3 выговора","Изгнание","Смертная казнь","Лишение чина"], correct: 2},
-            {question: "Можно ли убить шиноби по приказу Хокаге?", options: ["Нет","Да","Только в бою","С разрешения старейшин"], correct: 1},
-            {question: "Главная ценность Конохи?", options: ["Сила","Воля Огня","Кланы","Миссии"], correct: 1},
-            {question: "За что вечное изгнание?", options: ["Плохие оценки","Предательство","Опоздание","Неудача"], correct: 1},
-            {question: "Кто отдает приказы о казни?", options: ["Джонин","Хокаге","Старейшины","Все"], correct: 1},
-            {question: "Можно скрывать информацию от Хокаге?", options: ["Да","Нет","От врагов","По рангу"], correct: 1},
-            {question: "Что важнее миссии?", options: ["Миссия","Товарищ","Оба","Хокаге"], correct: 1},
-            {question: "Наказание за шпионаж?", options: ["Штраф","Изгнание","Тюрьма","Выговор"], correct: 1},
-            {question: "Кто охраняет Хокаге?", options: ["Генин","АНБУ","Корень","Все"], correct: 1},
-            {question: "Принцип Воли Огня?", options: ["Сражаться","Защищать жителей","Быть сильным","Миссии"], correct: 1}
+            {question: "Вопрос 1", options: ["Ответ 1", "Ответ 2", "Ответ 3", "Ответ 4"], correct: 0},
+            {question: "Вопрос 2", options: ["Ответ 1", "Ответ 2", "Ответ 3", "Ответ 4"], correct: 0},
+            {question: "Вопрос 3", options: ["Ответ 1", "Ответ 2", "Ответ 3", "Ответ 4"], correct: 0},
+            {question: "Вопрос 4", options: ["Ответ 1", "Ответ 2", "Ответ 3", "Ответ 4"], correct: 0},
+            {question: "Вопрос 5", options: ["Ответ 1", "Ответ 2", "Ответ 3", "Ответ 4"], correct: 0},
+            {question: "Вопрос 6", options: ["Ответ 1", "Ответ 2", "Ответ 3", "Ответ 4"], correct: 0},
+            {question: "Вопрос 7", options: ["Ответ 1", "Ответ 2", "Ответ 3", "Ответ 4"], correct: 0},
+            {question: "Вопрос 8", options: ["Ответ 1", "Ответ 2", "Ответ 3", "Ответ 4"], correct: 0},
+            {question: "Вопрос 9", options: ["Ответ 1", "Ответ 2", "Ответ 3", "Ответ 4"], correct: 0},
+            {question: "Вопрос 10", options: ["Ответ 1", "Ответ 2", "Ответ 3", "Ответ 4"], correct: 0},
+            {question: "Вопрос 11", options: ["Ответ 1", "Ответ 2", "Ответ 3", "Ответ 4"], correct: 0},
+            {question: "Вопрос 12", options: ["Ответ 1", "Ответ 2", "Ответ 3", "Ответ 4"], correct: 0},
+            {question: "Вопрос 13", options: ["Ответ 1", "Ответ 2", "Ответ 3", "Ответ 4"], correct: 0},
+            {question: "Вопрос 14", options: ["Ответ 1", "Ответ 2", "Ответ 3", "Ответ 4"], correct: 0},
+            {question: "Вопрос 15", options: ["Ответ 1", "Ответ 2", "Ответ 3", "Ответ 4"], correct: 0}
         ];
 
         let currentQuestion = 0, answers = [], score = 0, studentName = '';
 
+        function openAdmin() {
+            const pass = prompt("Введите пароль администратора:");
+            if (pass === "yugen_kairen") {
+                window.open('admin.html', '_blank');
+            } else if (pass !== null) {
+                alert("Неверный пароль.");
+            }
+        }
+
         function startTest() {
             studentName = document.getElementById('studentName').value.trim();
             if (!studentName) return alert('⚠️ Введи ник!');
-            
             document.getElementById('nameScreen').classList.remove('active');
             document.getElementById('quizContainer').classList.add('active');
             document.getElementById('studentInfo').textContent = `Шиноби: ${studentName}`;
             showQuestion();
+            updateNav();
         }
 
         function showQuestion() {
@@ -218,6 +250,9 @@
                         ${q.options.map((opt,i) => `<div class="option" onclick="selectOption(${i})">${opt}</div>`).join('')}
                     </div>
                 </div>`;
+            if (answers[currentQuestion] !== undefined) {
+                document.querySelectorAll('.option')[answers[currentQuestion]].classList.add('selected');
+            }
         }
 
         function selectOption(index) {
@@ -235,28 +270,30 @@
         }
 
         function prevQuestion() {
-            if (currentQuestion > 0) { currentQuestion--; showQuestion(); updateNav(); }
+            if (currentQuestion > 0) {
+                currentQuestion--; showQuestion(); updateNav();
+            }
         }
 
         function updateNav() {
             document.getElementById('prevBtn').disabled = currentQuestion === 0;
-            document.getElementById('nextBtn').textContent = 
+            document.getElementById('nextBtn').textContent =
                 currentQuestion === questions.length - 1 ? 'Завершить! →' : 'Далее →';
             updateProgress();
         }
 
         function updateProgress() {
-            document.getElementById('progressBar').style.width = 
+            document.getElementById('progressBar').style.width =
                 `${((currentQuestion + 1) / questions.length) * 100}%`;
         }
 
         async function calculateScore() {
             score = answers.filter((ans,i) => ans === questions[i].correct).length;
             const percent = Math.round(score / questions.length * 100);
-            const rank = percent >= 90 ? '🗡️ АНБУ' : percent >= 75 ? '⚔️ Джонин' : 
-                        percent >= 60 ? '🛡️ Чунин' : '🍃 Генин';
-            
-            // ✅ СОХРАНЕНИЕ В ТВОЮ ТАБЛИЦУ!
+            const rank = percent >= 90 ? '🗡️ АНБУ' :
+                         percent >= 75 ? '⚔️ Джонин' :
+                         percent >= 60 ? '🛡️ Чунин' : '🍃 Генин';
+
             await fetch(API_URL, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
@@ -269,35 +306,36 @@
                     rank: rank
                 }])
             });
-            
+
             showResult(percent, rank);
         }
 
         function showResult(percent, rank) {
             document.getElementById('quizContainer').classList.remove('active');
             document.getElementById('resultScreen').classList.add('active');
-            
-            document.getElementById('score').innerHTML = 
+
+            document.getElementById('score').innerHTML =
                 `<h2>${score}/${questions.length} (${percent}%)</h2>`;
             document.getElementById('rank').textContent = rank;
-            document.getElementById('rank').className = `rank ${rank.includes('АНБУ') ? 'anbu' : 
-                rank.includes('Джонин') ? 'jonin' : rank.includes('Чунин') ? 'chunin' : 'genin'}`;
-            document.getElementById('feedback').innerHTML = 
+            document.getElementById('rank').className = `rank ${
+                rank.includes('АНБУ') ? 'anbu' :
+                rank.includes('Джонин') ? 'jonin' :
+                rank.includes('Чунин') ? 'chunin' : 'genin'
+            }`;
+            document.getElementById('feedback').innerHTML =
                 percent >= 90 ? '<p>🎉 Превосходно! Элитный уровень!</p>' :
                 percent >= 75 ? '<p>👍 Отлично! Готов к миссиям!</p>' :
-                percent >= 60 ? '<p>👌 Хорошо! Повтори материал!</p>' : 
-                '<p>📚 Вернись к учебникам академии!</p>';
+                percent >= 60 ? '<p>👌 Хорошо! Повтори материал!</p>' :
+                                '<p>📚 Вернись к учебникам академии!</p>';
         }
 
         function restartQuiz() {
-            currentQuestion = 0; answers = []; 
+            currentQuestion = 0; answers = []; score = 0;
             document.getElementById('resultScreen').classList.remove('active');
             document.getElementById('nameScreen').classList.add('active');
             document.getElementById('studentName').value = '';
+            document.getElementById('progressBar').style.width = '0%';
         }
     </script>
 </body>
 </html>
-
-
-
