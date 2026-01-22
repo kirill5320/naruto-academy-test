@@ -3,337 +3,261 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎓 Академия Синоби Конохи - Тест Законов</title>
+    <title>Тест академии</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #2c5f2d 0%, #1a3c1a 100%);
-            color: #fff;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{
+            font-family:Arial,sans-serif;
+            background:linear-gradient(135deg,#2c5f2d 0,#1a3c1a 100%);
+            color:#fff;min-height:100vh;display:flex;
+            justify-content:center;align-items:center;padding:20px
         }
-        .container {
-            position: relative;
-            background: rgba(255,255,255,0.15);
-            backdrop-filter: blur(15px);
-            border-radius: 25px;
-            padding: 40px;
-            max-width: 900px;
-            width: 100%;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.4);
-            border: 3px solid rgba(255,204,0,0.3);
+        .container{
+            position:relative;background:rgba(255,255,255,.15);
+            backdrop-filter:blur(15px);border-radius:25px;padding:40px;
+            max-width:900px;width:100%;box-shadow:0 25px 50px rgba(0,0,0,.4);
+            border:3px solid rgba(255,204,0,.3)
         }
-        .admin-btn {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            padding: 8px 18px;
-            border-radius: 20px;
-            border: none;
-            cursor: pointer;
-            font-size: 0.9em;
-            font-weight: bold;
-            background: #0066cc;
-            color: #fff;
+        .admin-btn{
+            position:absolute;top:15px;right:15px;padding:8px 18px;
+            border-radius:20px;border:none;cursor:pointer;font-size:.9em;
+            font-weight:700;background:#0066cc;color:#fff;display:none
         }
-        .screen { display: none; }
-        .screen.active { display: block; }
-        .header { text-align: center; margin-bottom: 30px; }
-        .logo {
-            font-size: 3em;
-            background: linear-gradient(45deg, #ffcc00, #ff6600);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 15px;
-            text-shadow: 0 0 20px rgba(255,204,0,0.5);
+        .screen{display:none}
+        .screen.active{display:block}
+        .header{text-align:center;margin-bottom:30px}
+        .logo{
+            font-size:3em;background:linear-gradient(45deg,#ffcc00,#ff6600);
+            -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+            margin-bottom:15px;text-shadow:0 0 20px rgba(255,204,0,.5)
         }
-        .name-input input {
-            width: 100%; max-width: 400px;
-            padding: 18px 25px;
-            font-size: 1.3em;
-            border: 3px solid rgba(255,255,255,0.3);
-            border-radius: 30px;
-            background: rgba(255,255,255,0.1);
-            color: white;
-            text-align: center;
-            margin-bottom: 25px;
+        .name-input input{
+            width:100%;max-width:400px;padding:18px 25px;font-size:1.3em;
+            border:3px solid rgba(255,255,255,.3);border-radius:30px;
+            background:rgba(255,255,255,.1);color:#fff;text-align:center;
+            margin-bottom:25px
         }
-        .name-input input::placeholder { color: rgba(255,255,255,0.6); }
-        .btn {
-            padding: 18px 40px;
-            border: none;
-            border-radius: 30px;
-            font-size: 1.2em;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-            width: 100%;
-            margin-bottom: 15px;
+        .name-input input::placeholder{color:rgba(255,255,255,.6)}
+        .btn{
+            padding:18px 40px;border:none;border-radius:30px;font-size:1.2em;
+            font-weight:700;cursor:pointer;transition:.3s;width:100%;margin-bottom:15px
         }
-        .start-btn {
-            background: linear-gradient(45deg, #ff6600, #ffcc00);
-            color: white;
+        .start-btn{background:linear-gradient(45deg,#ff6600,#ffcc00);color:#fff}
+        .start-btn:hover{transform:scale(1.05);box-shadow:0 10px 25px rgba(255,102,0,.4)}
+        .progress{
+            background:rgba(255,255,255,.2);height:10px;border-radius:5px;
+            margin:25px 0;overflow:hidden
         }
-        .start-btn:hover { transform: scale(1.05); box-shadow: 0 10px 25px rgba(255,102,0,0.4); }
-        .progress {
-            background: rgba(255,255,255,0.2);
-            height: 10px;
-            border-radius: 5px;
-            margin: 25px 0;
-            overflow: hidden;
+        .progress-bar{
+            height:100%;background:linear-gradient(90deg,#ffcc00,#ff6600,#00cc00);
+            width:0;transition:.4s
         }
-        .progress-bar {
-            height: 100%;
-            background: linear-gradient(90deg, #ffcc00, #ff6600, #00cc00);
-            width: 0%;
-            transition: width 0.4s ease;
+        .question{
+            background:rgba(255,255,255,.08);padding:30px;border-radius:20px;
+            margin-bottom:25px;border-left:6px solid #ffcc00;
+            box-shadow:inset 0 2px 10px rgba(0,0,0,.2)
         }
-        .question {
-            background: rgba(255,255,255,0.08);
-            padding: 30px;
-            border-radius: 20px;
-            margin-bottom: 25px;
-            border-left: 6px solid #ffcc00;
-            box-shadow: inset 0 2px 10px rgba(0,0,0,0.2);
+        .question-text{font-size:1.4em;margin-bottom:25px;font-weight:700}
+        .options{display:flex;flex-direction:column;gap:15px}
+        .option{
+            padding:20px 25px;border-radius:15px;cursor:pointer;
+            transition:.3s;background:rgba(255,255,255,.1);
+            border:2px solid transparent;font-size:1.1em
         }
-        .question-text {
-            font-size: 1.4em;
-            margin-bottom: 25px;
-            font-weight: bold;
+        .option:hover{
+            background:rgba(255,255,255,.25);transform:translateX(8px);
+            box-shadow:0 5px 15px rgba(0,0,0,.2)
         }
-        .options { display: flex; flex-direction: column; gap: 15px; }
-        .option {
-            padding: 20px 25px;
-            border-radius: 15px;
-            cursor: pointer;
-            transition: all 0.3s;
-            background: rgba(255,255,255,0.1);
-            border: 2px solid transparent;
-            font-size: 1.1em;
+        .option.selected{
+            background:linear-gradient(45deg,#ffcc00,#ff6600)!important;
+            color:#1a1a1a!important;border-color:#fff!important;font-weight:700
         }
-        .option:hover {
-            background: rgba(255,255,255,0.25);
-            transform: translateX(8px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        .nav-buttons{display:flex;gap:20px;margin-top:30px}
+        .btn-prev{background:#666;color:#fff}
+        .btn-next{background:linear-gradient(45deg,#00cc00,#66ff66);color:#1a3c1a}
+        .btn:disabled{opacity:.5;cursor:not-allowed}
+        .result{text-align:center}
+        .rank{
+            font-size:2.5em;margin:30px 0;padding:30px;border-radius:20px;
+            font-weight:700;box-shadow:0 10px 30px rgba(0,0,0,.3)
         }
-        .option.selected {
-            background: linear-gradient(45deg, #ffcc00, #ff6600) !important;
-            color: #1a1a1a !important;
-            border-color: #fff !important;
-            font-weight: bold;
-        }
-        .nav-buttons {
-            display: flex;
-            gap: 20px;
-            margin-top: 30px;
-        }
-        .btn-prev { background: #666; color: white; }
-        .btn-next { background: linear-gradient(45deg, #00cc00, #66ff66); color: #1a3c1a; }
-        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-        .result { text-align: center; }
-        .rank {
-            font-size: 2.5em;
-            margin: 30px 0;
-            padding: 30px;
-            border-radius: 20px;
-            font-weight: bold;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-        }
-        .genin { background: linear-gradient(45deg, #00cc00, #66ff66); color: #1a3c1a; }
-        .chunin { background: linear-gradient(45deg, #0066cc, #66ccff); color: #003366; }
-        @media (max-width: 768px) { .nav-buttons { flex-direction: column; } }
+        .genin{background:linear-gradient(45deg,#00cc00,#66ff66);color:#1a3c1a}
+        .chunin{background:linear-gradient(45deg,#0066cc,#66ccff);color:#003366}
+        @media(max-width:768px){.nav-buttons{flex-direction:column}}
     </style>
 </head>
 <body>
-    <div class="container">
-        <button class="admin-btn" onclick="openAdmin()">Админ-панель</button>
+<div class="container">
+    <button id="adminBtn" class="admin-btn" type="button">Админ-панель</button>
 
-        <!-- ЭКРАН ВВОДА НИКА -->
-        <div id="nameScreen" class="screen active">
-            <div class="header">
-                <div class="logo">🍃 木葉隠れの里</div>
-                <h1>⚔️ Академия Синоби ⚔️</h1>
-                <h2>Экзамен по Законам Конохи</h2>
-            </div>
-            <div class="name-input">
-                <input type="text" id="studentName" placeholder="Введи свой боевой ник, шиноби..." maxlength="20">
-            </div>
-            <button class="btn start-btn" onclick="startTest()">🚀 Начать экзамен!</button>
+    <div id="nameScreen" class="screen active">
+        <div class="header">
+            <div class="logo">🍃 木葉隠れの里</div>
+            <h1>⚔️ Академия Синоби ⚔️</h1>
+            <h2>Экзамен по Законам Конохи</h2>
         </div>
+        <div class="name-input">
+            <input type="text" id="studentName" placeholder="Введи свой боевой ник, шиноби..." maxlength="20">
+        </div>
+        <button class="btn start-btn" type="button" onclick="startTest()">Начать экзамен</button>
+    </div>
 
-        <!-- ЭКРАН ТЕСТА -->
-        <div id="quizContainer" class="screen">
-            <div class="header">
-                <div class="logo">📜 Экзамен</div>
-                <h2 id="studentInfo"></h2>
-                <div class="progress">
-                    <div class="progress-bar" id="progressBar"></div>
-                </div>
-            </div>
-            <div id="quiz"></div>
-            <div class="nav-buttons">
-                <button class="btn btn-prev" onclick="prevQuestion()" id="prevBtn" disabled>← Назад</button>
-                <button class="btn btn-next" onclick="nextQuestion()" id="nextBtn">Далее →</button>
+    <div id="quizContainer" class="screen">
+        <div class="header">
+            <div class="logo">📜 Экзамен</div>
+            <h2 id="studentInfo"></h2>
+            <div class="progress">
+                <div class="progress-bar" id="progressBar"></div>
             </div>
         </div>
-
-        <!-- РЕЗУЛЬТАТ -->
-        <div id="resultScreen" class="screen">
-            <div class="header">
-                <div class="logo">🏆 Результат</div>
-            </div>
-            <div class="result">
-                <div id="score"></div>
-                <div id="rank" class="rank"></div>
-                <div id="feedback"></div>
-            </div>
+        <div id="quiz"></div>
+        <div class="nav-buttons">
+            <button class="btn btn-prev" type="button" onclick="prevQuestion()" id="prevBtn" disabled>← Назад</button>
+            <button class="btn btn-next" type="button" onclick="nextQuestion()" id="nextBtn">Далее →</button>
         </div>
     </div>
 
-    <script>
-        const API_URL = 'https://sheetdb.io/api/v1/4ssoqxhf0fnia';
+    <div id="resultScreen" class="screen">
+        <div class="header">
+            <div class="logo">🏆 Результат</div>
+        </div>
+        <div class="result">
+            <div id="score"></div>
+            <div id="rank" class="rank"></div>
+            <div id="feedback"></div>
+        </div>
+    </div>
+</div>
 
-        // 15 заготовок вопросов – просто меняешь текст и индекс correct
-        const questions = [
-            {question: "Вопрос 1",  options: ["Ответ 1", "Ответ 2", "Ответ 3", "Ответ 4"], correct: 0},
-            {question: "Вопрос 2",  options: ["Ответ 1", "Ответ 2", "Ответ 3", "Ответ 4"], correct: 0},
-            {question: "Вопрос 3",  options: ["Ответ 1", "Ответ 2", "Ответ 3", "Ответ 4"], correct: 0},
-            {question: "Вопрос 4",  options: ["Ответ 1", "Ответ 2", "Ответ 3", "Ответ 4"], correct: 0},
-            {question: "Вопрос 5",  options: ["Ответ 1", "Ответ 2", "Ответ 3", "Ответ 4"], correct: 0},
-            {question: "Вопрос 6",  options: ["Ответ 1", "Ответ 2", "Ответ 3", "Ответ 4"], correct: 0},
-            {question: "Вопрос 7",  options: ["Ответ 1", "Ответ 2", "Ответ 3", "Ответ 4"], correct: 0},
-            {question: "Вопрос 8",  options: ["Ответ 1", "Ответ 2", "Ответ 3", "Ответ 4"], correct: 0},
-            {question: "Вопрос 9",  options: ["Ответ 1", "Ответ 2", "Ответ 3", "Ответ 4"], correct: 0},
-            {question: "Вопрос 10", options: ["Ответ 1", "Ответ 2", "Ответ 3", "Ответ 4"], correct: 0},
-            {question: "Вопрос 11", options: ["Ответ 1", "Ответ 2", "Ответ 3", "Ответ 4"], correct: 0},
-            {question: "Вопрос 12", options: ["Ответ 1", "Ответ 2", "Ответ 3", "Ответ 4"], correct: 0},
-            {question: "Вопрос 13", options: ["Ответ 1", "Ответ 2", "Ответ 3", "Ответ 4"], correct: 0},
-            {question: "Вопрос 14", options: ["Ответ 1", "Ответ 2", "Ответ 3", "Ответ 4"], correct: 0},
-            {question: "Вопрос 15", options: ["Ответ 1", "Ответ 2", "Ответ 3", "Ответ 4"], correct: 0}
-        ];
+<script>
+const API_URL='https://sheetdb.io/api/v1/4ssoqxhf0fnia';
 
-        let currentQuestion = 0, answers = [], score = 0, studentName = '';
+const questions=[
+    {question:"Вопрос 1",options:["Ответ 1","Ответ 2","Ответ 3","Ответ 4"],correct:0},
+    {question:"Вопрос 2",options:["Ответ 1","Ответ 2","Ответ 3","Ответ 4"],correct:0},
+    {question:"Вопрос 3",options:["Ответ 1","Ответ 2","Ответ 3","Ответ 4"],correct:0},
+    {question:"Вопрос 4",options:["Ответ 1","Ответ 2","Ответ 3","Ответ 4"],correct:0},
+    {question:"Вопрос 5",options:["Ответ 1","Ответ 2","Ответ 3","Ответ 4"],correct:0},
+    {question:"Вопрос 6",options:["Ответ 1","Ответ 2","Ответ 3","Ответ 4"],correct:0},
+    {question:"Вопрос 7",options:["Ответ 1","Ответ 2","Ответ 3","Ответ 4"],correct:0},
+    {question:"Вопрос 8",options:["Ответ 1","Ответ 2","Ответ 3","Ответ 4"],correct:0},
+    {question:"Вопрос 9",options:["Ответ 1","Ответ 2","Ответ 3","Ответ 4"],correct:0},
+    {question:"Вопрос 10",options:["Ответ 1","Ответ 2","Ответ 3","Ответ 4"],correct:0},
+    {question:"Вопрос 11",options:["Ответ 1","Ответ 2","Ответ 3","Ответ 4"],correct:0},
+    {question:"Вопрос 12",options:["Ответ 1","Ответ 2","Ответ 3","Ответ 4"],correct:0},
+    {question:"Вопрос 13",options:["Ответ 1","Ответ 2","Ответ 3","Ответ 4"],correct:0},
+    {question:"Вопрос 14",options:["Ответ 1","Ответ 2","Ответ 3","Ответ 4"],correct:0},
+    {question:"Вопрос 15",options:["Ответ 1","Ответ 2","Ответ 3","Ответ 4"],correct:0}
+];
 
-        function openAdmin() {
-            const pass = prompt("Введите пароль администратора:");
-            if (pass === "yugen_kairen") {
-                window.open('admin.html', '_blank');
-            } else if (pass !== null) {
-                alert("Неверный пароль.");
-            }
-        }
+let currentQuestion=0,answers=[],score=0,studentName='';
 
-        async function alreadyPassed(name) {
-            const res = await fetch(`${API_URL}/search?name=${encodeURIComponent(name)}`);
-            const data = await res.json();
-            return data.length > 0;
-        }
+const adminBtn=document.getElementById('adminBtn');
+adminBtn.addEventListener('click',()=>{
+    const pass=prompt('Введите пароль администратора:');
+    if(pass==='yugen_kairen')window.open('admin.html','_blank');else if(pass!==null)alert('Неверный пароль.');
+});
 
-        async function startTest() {
-            studentName = document.getElementById('studentName').value.trim();
-            if (!studentName) return alert('⚠️ Введи ник!');
+function showAdminButton(on){adminBtn.style.display=on?'inline-block':'none';}
 
-            if (await alreadyPassed(studentName)) {
-                alert('Этот шиноби уже проходил экзамен и не может пройти его снова.');
-                return;
-            }
+async function alreadyPassed(name){
+    const res=await fetch(`${API_URL}/search?name=${encodeURIComponent(name)}`);
+    const data=await res.json();
+    return data.length>0;
+}
 
-            document.getElementById('nameScreen').classList.remove('active');
-            document.getElementById('quizContainer').classList.add('active');
-            document.getElementById('studentInfo').textContent = `Шиноби: ${studentName}`;
-            showQuestion();
-            updateNav();
-        }
+async function startTest(){
+    studentName=document.getElementById('studentName').value.trim();
+    if(!studentName){alert('Введи ник.');return;}
+    showAdminButton(true); // видно только на экране ввода
+    if(await alreadyPassed(studentName)){
+        alert('Этот шиноби уже проходил экзамен и не может пройти его снова.');
+        return;
+    }
+    document.getElementById('nameScreen').classList.remove('active');
+    document.getElementById('quizContainer').classList.add('active');
+    document.getElementById('studentInfo').textContent='Шиноби: '+studentName;
+    showAdminButton(false); // спрятать на вопросах
+    showQuestion();
+    updateNav();
+}
 
-        function showQuestion() {
-            const q = questions[currentQuestion];
-            document.getElementById('quiz').innerHTML = `
-                <div class="question">
-                    <div class="question-text">Q${currentQuestion+1}: ${q.question}</div>
-                    <div class="options">
-                        ${q.options.map((opt,i) => `<div class="option" onclick="selectOption(${i})">${opt}</div>`).join('')}
-                    </div>
-                </div>`;
-            if (answers[currentQuestion] !== undefined) {
-                document.querySelectorAll('.option')[answers[currentQuestion]].classList.add('selected');
-            }
-        }
+function showQuestion(){
+    const q=questions[currentQuestion];
+    document.getElementById('quiz').innerHTML=
+        `<div class="question">
+           <div class="question-text">Q${currentQuestion+1}: ${q.question}</div>
+           <div class="options">
+             ${q.options.map((opt,i)=>`<div class="option" onclick="selectOption(${i})">${opt}</div>`).join('')}
+           </div>
+         </div>`;
+    if(answers[currentQuestion]!==undefined){
+        document.querySelectorAll('.option')[answers[currentQuestion]].classList.add('selected');
+    }
+}
 
-        function selectOption(index) {
-            document.querySelectorAll('.option').forEach((o,i) => {
-                o.classList.toggle('selected', i === index);
-            });
-            answers[currentQuestion] = index;
-        }
+function selectOption(index){
+    document.querySelectorAll('.option').forEach((o,i)=>o.classList.toggle('selected',i===index));
+    answers[currentQuestion]=index;
+}
 
-        function nextQuestion() {
-            if (answers[currentQuestion] === undefined) return alert('Выбери ответ!');
-            if (currentQuestion < questions.length - 1) {
-                currentQuestion++; showQuestion(); updateNav();
-            } else calculateScore();
-        }
+function nextQuestion(){
+    if(answers[currentQuestion]===undefined){alert('Выбери ответ.');return;}
+    if(currentQuestion<questions.length-1){currentQuestion++;showQuestion();updateNav();}
+    else calculateScore();
+}
 
-        function prevQuestion() {
-            if (currentQuestion > 0) {
-                currentQuestion--; showQuestion(); updateNav();
-            }
-        }
+function prevQuestion(){
+    if(currentQuestion>0){currentQuestion--;showQuestion();updateNav();}
+}
 
-        function updateNav() {
-            document.getElementById('prevBtn').disabled = currentQuestion === 0;
-            document.getElementById('nextBtn').textContent =
-                currentQuestion === questions.length - 1 ? 'Завершить! →' : 'Далее →';
-            updateProgress();
-        }
+function updateNav(){
+    document.getElementById('prevBtn').disabled=currentQuestion===0;
+    document.getElementById('nextBtn').textContent=currentQuestion===questions.length-1?'Завершить →':'Далее →';
+    updateProgress();
+}
 
-        function updateProgress() {
-            document.getElementById('progressBar').style.width =
-                `${((currentQuestion + 1) / questions.length) * 100}%`;
-        }
+function updateProgress(){
+    document.getElementById('progressBar').style.width=((currentQuestion+1)/questions.length*100)+'%';
+}
 
-        async function calculateScore() {
-            score = answers.filter((ans,i) => ans === questions[i].correct).length;
-            const percent = Math.round(score / questions.length * 100);
-            const errors = questions.length - score;
-            const passed = errors <= 7; // 7 и больше ошибок — не прошёл
+async function calculateScore(){
+    score=answers.filter((ans,i)=>ans===questions[i].correct).length;
+    const percent=Math.round(score/questions.length*100);
+    const errors=questions.length-score;
+    const passed=errors<=7;
+    const status=passed?'Прошёл':'Не прошёл';
+    const dateStr=new Date().toLocaleString('ru-RU');
 
-            const status = passed ? 'Прошёл' : 'Не прошёл';
-            const dateStr = new Date().toLocaleString('ru-RU');
+    await fetch(API_URL,{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify([{
+            name:studentName,
+            score:score,
+            total:questions.length,
+            percent:percent,
+            date:dateStr,
+            status:status
+        }])
+    });
 
-            await fetch(API_URL, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify([{
-                    name: studentName,
-                    score: score,
-                    total: questions.length,
-                    percent: percent,
-                    date: dateStr,
-                    status: status
-                }])
-            });
+    showResult(status,errors);
+}
 
-            showResult(percent, status, errors);
-        }
-
-        function showResult(percent, status, errors) {
-            document.getElementById('quizContainer').classList.remove('active');
-            document.getElementById('resultScreen').classList.add('active');
-
-            document.getElementById('score').innerHTML =
-                `<h2>${score}/${questions.length} (${percent}%) — ошибок: ${errors}</h2>`;
-            document.getElementById('rank').textContent = status;
-            document.getElementById('rank').className = 'rank ' + (status === 'Прошёл' ? 'chunin' : 'genin');
-
-            document.getElementById('feedback').innerHTML =
-                status === 'Прошёл'
-                ? '<p>🎉 Поздравляем! Ты успешно сдал экзамен.</p>'
-                : '<p>📚 Экзамен не сдан. Обратись к наставнику для повторной подготовки.</p>';
-        }
-    </script>
+function showResult(status,errors){
+    document.getElementById('quizContainer').classList.remove('active');
+    document.getElementById('resultScreen').classList.add('active');
+    document.getElementById('score').innerHTML=
+        `<h2>Баллы: ${score} из ${questions.length} — ошибок: ${errors}</h2>`;
+    document.getElementById('rank').textContent=status;
+    document.getElementById('rank').className='rank '+(status==='Прошёл'?'chunin':'genin');
+    document.getElementById('feedback').innerHTML=
+        status==='Прошёл'
+            ?'<p>Поздравляем! Экзамен сдан.</p>'
+            :'<p>Экзамен не сдан. Обратись к наставнику.</p>';
+    showAdminButton(true); // снова показать на экране результата
+}
+</script>
 </body>
 </html>
