@@ -56,6 +56,10 @@
             text-shadow: 0 0 20px rgba(255, 204, 0, .5)
         }
 
+        .name-input {
+            position: relative;
+        }
+
         .name-input input {
             width: 100%;
             padding: 18px 25px;
@@ -69,6 +73,20 @@
 
         .name-input input::placeholder {
             color: rgba(255, 255, 255, .6)
+        }
+
+        /* Счётчик символов */
+        .char-counter {
+            text-align: center;
+            margin-top: 8px;
+            font-size: 0.9em;
+            color: rgba(255, 255, 255, 0.7);
+            min-height: 20px;
+        }
+
+        .char-counter.warning {
+            color: #ff6666;
+            font-weight: bold;
         }
 
         .btn {
@@ -186,7 +204,6 @@
             box-shadow: 0 10px 30px rgba(0, 0, 0, .3)
         }
 
-        /* ← НОВЫЕ КЛАССЫ ДЛЯ ЦВЕТОВ */
         .passed {
             background: linear-gradient(45deg, #00cc00, #66ff66);
             color: #1a3c1a;
@@ -225,7 +242,9 @@
                 <h2>Экзамен по знанию законов деревни листа</h2>
             </div>
             <div class="name-input">
-                <input type="text" id="studentName" placeholder="Впишите свое имя и фамилию" maxlength="20">
+                <input type="text" id="studentName" placeholder="Впишите свое имя и фамилию" maxlength="32"
+                    oninput="updateCharCounter()">
+                <div class="char-counter" id="charCounter"></div>
             </div>
             <button class="btn start-btn" type="button" onclick="startTest()">Начать экзамен</button>
         </div>
@@ -282,7 +301,26 @@
         let answers = [];
         let score = 0;
         let studentName = '';
-        let resultsSent = false; 
+        let resultsSent = false;
+
+        // Счётчик символов
+        function updateCharCounter() {
+            const input = document.getElementById('studentName');
+            const counter = document.getElementById('charCounter');
+            const length = input.value.length;
+            const maxLength = 32;
+
+            if (length >= maxLength) {
+                counter.textContent = `⚠️ Достигнут лимит: ${length}/${maxLength} символов`;
+                counter.classList.add('warning');
+            } else if (length > maxLength - 5) {
+                counter.textContent = `${length}/${maxLength} символов`;
+                counter.classList.remove('warning');
+            } else {
+                counter.textContent = '';
+                counter.classList.remove('warning');
+            }
+        }
 
         async function alreadyPassed(name) {
             const res = await fetch(`${API_URL}/search?name=${encodeURIComponent(name)}`);
@@ -292,7 +330,7 @@
 
         async function startTest() {
             studentName = document.getElementById('studentName').value.trim();
-            if (!studentName) { alert('Введи ник.'); return; }
+            if (!studentName) { alert('Введите имя и фамилию.'); return; }
 
             if (await alreadyPassed(studentName)) {
                 alert('Этот шиноби уже проходил экзамен и не может пройти его снова.');
@@ -326,7 +364,7 @@
         }
 
         function nextQuestion() {
-            if (answers[currentQuestion] === undefined) { alert('Выбери ответ.'); return; }
+            if (answers[currentQuestion] === undefined) { alert('Выберите ответ.'); return; }
             if (currentQuestion < questions.length - 1) {
                 currentQuestion++;
                 showQuestion();
@@ -357,28 +395,54 @@
         }
 
         async function calculateScore() {
-            if (resultsSent) return; 
+            if (resultsSent) {
+                console.log('Результат уже отправлен, блокировка повтора');
+                return;
+            }
+
+            // Блокируем немедленно
+            resultsSent = true;
 
             score = answers.filter((ans, i) => ans === questions[i].correct).length;
             const errors = questions.length - score;
             const passed = errors <= 7;
-            const status = passed ? 'Прошёл' : 'Не прошёл'; 
-            const dateStr = new Date().toLocaleString('ru-RU');
+            const status = passed ? 'Прошёл' : 'Не прошёл';
 
-            console.log('Sending:', { name: studentName, score, date: dateStr, status });
+            // ФИКС ДАТЫ: Форматируем вручную как строку
+            const now = new Date();
+            const day = String(now.getDate()).padStart(2, '0');
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const year = now.getFullYear();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            const dateStr = `${day}.${month}.${year}, ${hours}:${minutes}:${seconds}`;
+
+            console.log('Отправка результата:', { name: studentName, score, date: dateStr, status });
 
             try {
                 const response = await fetch(API_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name: studentName, score, date: dateStr, status }) 
+                    body: JSON.stringify({
+                        name: studentName,
+                        score: score,
+                        date: dateStr,
+                        status: status
+                    })
                 });
-                console.log('Response:', response.status);
+
+                if (response.ok) {
+                    console.log('✅ Успешно отправлено, статус:', response.status);
+                } else {
+                    console.error('❌ Ошибка API:', response.status);
+                }
             } catch (e) {
-                console.error(e);
+                console.error('❌ Ошибка сети:', e);
             }
 
-            resultsSent = true; 
+            // Задержка перед показом результата (защита от двойного клика)
+            await new Promise(resolve => setTimeout(resolve, 500));
             showResult(status, errors);
         }
 
@@ -389,7 +453,6 @@
             document.getElementById('score').innerHTML = `<h2>${score} из ${questions.length}, ошибок: ${errors}</h2>`;
             document.getElementById('rank').textContent = status;
 
-            
             const rankClass = status === 'Прошёл' ? 'rank passed' : 'rank failed';
             document.getElementById('rank').className = rankClass;
 
