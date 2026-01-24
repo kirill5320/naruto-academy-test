@@ -75,7 +75,6 @@
             color: rgba(255, 255, 255, .6)
         }
 
-        /* Счётчик символов */
         .char-counter {
             text-align: center;
             margin-top: 8px;
@@ -303,7 +302,6 @@
         let studentName = '';
         let resultsSent = false;
 
-        // Счётчик символов
         function updateCharCounter() {
             const input = document.getElementById('studentName');
             const counter = document.getElementById('charCounter');
@@ -400,7 +398,6 @@
                 return;
             }
 
-            // Блокируем немедленно
             resultsSent = true;
 
             score = answers.filter((ans, i) => ans === questions[i].correct).length;
@@ -408,7 +405,6 @@
             const passed = errors <= 7;
             const status = passed ? 'Прошёл' : 'Не прошёл';
 
-            // ФИКС ДАТЫ: Форматируем вручную как строку
             const now = new Date();
             const day = String(now.getDate()).padStart(2, '0');
             const month = String(now.getMonth() + 1).padStart(2, '0');
@@ -441,7 +437,6 @@
                 console.error('❌ Ошибка сети:', e);
             }
 
-            // Задержка перед показом результата (защита от двойного клика)
             await new Promise(resolve => setTimeout(resolve, 500));
             showResult(status, errors);
         }
@@ -468,5 +463,6 @@
 </body>
 
 </html>
+
 
 
